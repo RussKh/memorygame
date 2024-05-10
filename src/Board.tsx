@@ -5,7 +5,7 @@ export interface ISquare {
   id: number;
   img: string;
   isOpen: boolean; // --> typology of each square
-  pointer: string;
+  pointerEnabled: boolean;
 }
 
 interface IProps {

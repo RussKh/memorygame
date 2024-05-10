@@ -7,12 +7,10 @@ interface IProps {
 }
 
 const Square = (props: IProps) => {
-  // const pointer: React.CSSProperties["pointerEvents"] = props.square.pointer
-
   return (
     <div
       className="square"
-      // style={{ pointerEvents: pointer }}
+      style={{ pointerEvents: props.square.pointerEnabled ? "auto" : "none" }}
       onClick={() => props.openSquare(props.square.id, props.square.img)}
       // to avoid any mistakes so the function is called on only on click
     >
