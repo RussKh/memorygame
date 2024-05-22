@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./App.css";
+import "./AppCSS.css";
 import Board from "./Board";
 import { ButtonGroup } from "react-bootstrap";
 
@@ -42,7 +42,7 @@ function App() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setShowBoardTimeout(true);
-    }, 300);
+    }, 500);
 
     return () => clearTimeout(timeout);
   }, []);
@@ -57,7 +57,7 @@ function App() {
     if (showBoardTimeout) {
       const timeout = setTimeout(() => {
         setHideBoardTimeout(true);
-      }, 300); // Delay of 0.5 second (300 milliseconds)
+      }, 500); // Delay of 0.5 second (300 milliseconds)
 
       return () => clearTimeout(timeout);
     }
@@ -108,7 +108,7 @@ function App() {
       const timeout = setTimeout(() => {
         hideBoard();
         setShouldFlashBoard(false); // Reset the flag after flashing
-      }, 300); // Flash duration: 300 milliseconds (0.5 seconds)
+      }, 500); // Flash duration: 500 milliseconds (0.5 seconds)
 
       return () => clearTimeout(timeout);
     }
@@ -146,7 +146,7 @@ function App() {
           setSquares(newSquares);
           setIsClickable(true);
         },
-        speed === "fast" ? 150 : speed === "medium" ? 300 : 600
+        speed === "fast" ? 300 : speed === "medium" ? 500 : 800
       );
     }
   }
