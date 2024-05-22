@@ -6,12 +6,13 @@
 }
 
 .board {
-  border: 2px solid darkgreen;
+  /* border: 2px solid darkgreen; */
   width: 400px;
   height: 300px;
   margin: 20px auto;
   display: grid;
   grid-template: repeat(3, 1fr) / repeat(4, 1fr);
+  gap: 10px;
 }
 
 .square {

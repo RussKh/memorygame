@@ -6,6 +6,33 @@ import Board from "./Board";
 import { ButtonGroup } from "react-bootstrap";
 
 function App() {
+  const playingCards = [
+    "2_of_clubs.png",
+    "2_of_diamonds.png",
+    "2_of_hearts.png",
+    "2_of_spades.png",
+    "10_of_clubs.png",
+    "10_of_diamonds.png",
+    "10_of_hearts.png",
+    "10_of_spades.png",
+    "ace_of_clubs.png",
+    "ace_of_diamonds.png",
+    "ace_of_hearts.png",
+    "ace_of_spades.png",
+    "jack_of_clubs2.png",
+    "jack_of_diamonds2.png",
+    "jack_of_hearts2.png",
+    "jack_of_spades2.png",
+    "king_of_clubs2.png",
+    "king_of_diamonds2.png",
+    "king_of_hearts2.png",
+    "king_of_spades2.png",
+    "queen_of_clubs2.png",
+    "queen_of_diamonds2.png",
+    "queen_of_hearts2.png",
+    "queen_of_spades2.png",
+    "red_joker.png",
+  ];
   const emoji = ["🐬", "🐍", "🏄", "⛵️", "🌺", "🌴"];
   const speedLevels = ["slow", "medium", "fast"];
   const initialSquares = new Array(12)
@@ -156,6 +183,8 @@ function App() {
       setGameResult(history.length / 2);
     }
   }
+  const cardsArray = playingCards.filter((el) => el.includes("diamonds"));
+  console.log(cardsArray);
 
   return (
     <>
