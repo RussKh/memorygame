@@ -24,21 +24,25 @@ function App() {
   const [showBoardTimeout, setShowBoardTimeout] = useState(false);
   const [hideBoardTimeout, setHideBoardTimeout] = useState(false);
   const [gameResult, setGameResult] = useState(0);
+  const [gameResultHistory, setGameResultHistory] = useState<number[]>([]);
+  const [shouldFlashBoard, setShouldFlashBoard] = useState(false);
+
+  const toggleFlashBoard = () => {
+    setShouldFlashBoard((prev) => !prev);
+  };
 
   useEffect(() => {
     fillBoard();
   }, []);
 
   useEffect(() => {
-    if (showBoardTimeout) {
-      showBoard();
-    }
+    if (showBoardTimeout) showBoard();
   }, [showBoardTimeout]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       setShowBoardTimeout(true);
-    }, 500);
+    }, 300);
 
     return () => clearTimeout(timeout);
   }, []);
@@ -53,16 +57,11 @@ function App() {
     if (showBoardTimeout) {
       const timeout = setTimeout(() => {
         setHideBoardTimeout(true);
-      }, 500); // Delay of 0.5 second (500 milliseconds)
+      }, 300); // Delay of 0.5 second (300 milliseconds)
 
       return () => clearTimeout(timeout);
     }
   }, [showBoardTimeout]);
-
-  useEffect(() => {
-    checkMove();
-    checkFinish();
-  }, [history]);
 
   function showBoard() {
     setSquares(
@@ -77,6 +76,11 @@ function App() {
     setHideBoardTimeout(false);
   }
 
+  useEffect(() => {
+    checkMove();
+    checkFinish();
+  }, [history]);
+
   function fillBoard() {
     const doubleEmoji = [...emoji, ...emoji].sort(() => Math.random() - 0.5);
     const newSquares = squares.map((el, index) => ({
@@ -87,12 +91,28 @@ function App() {
   }
 
   function reshuffle() {
-    fillBoard();
+    gameResult > 0 && setGameResultHistory([gameResult, ...gameResultHistory]);
+    toggleFlashBoard(); // Trigger the board flashing
+    setGameResult(0);
     setHistory([]);
     setSquares(
-      squares.map((sq) => ({ ...sq, isOpen: false, pointerEnabled: true }))
+      squares
+        .map((sq) => ({ ...sq, isOpen: false, pointerEnabled: true }))
+        .sort(() => Math.random() - 0.5)
     );
   }
+  useEffect(() => {
+    if (shouldFlashBoard) {
+      showBoard();
+
+      const timeout = setTimeout(() => {
+        hideBoard();
+        setShouldFlashBoard(false); // Reset the flag after flashing
+      }, 300); // Flash duration: 300 milliseconds (0.5 seconds)
+
+      return () => clearTimeout(timeout);
+    }
+  }, [shouldFlashBoard]);
 
   function flashSpeed() {
     let i = speedLevels.findIndex((level) => level === speed);
@@ -150,8 +170,15 @@ function App() {
           Flash duration: {speed}
         </Button>
       </ButtonGroup>
-
-      {!!gameResult && <Button> Won in {gameResult} moves </Button>}
+      <div className="m-3">
+        {!!gameResult && (
+          <Button variant="outline-success"> Won in {gameResult} moves </Button>
+        )}
+        <h3>Last win scores:</h3>
+        {gameResultHistory.map((res) => (
+          <li>{res}</li>
+        ))}
+      </div>
     </>
   );
 }

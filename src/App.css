@@ -24,4 +24,37 @@
   font-weight: 800;
   cursor: pointer;
   outline: none;
+
+  transform-style: preserve-3d;
+  transition: 150ms;
+  transform: perspective(1000px) rotateY(var(--rotate-y, 0))
+    translateY(var(--rotate-y, 0));
 }
+
+.square.flip {
+  --rotate-y: 180deg;
+}
+
+.square .front {
+  left: 0;
+}
+
+.square .front,
+.square .back {
+  position: absolute;
+  padding: 1rem;
+  backface-visibility: hidden;
+}
+
+.square .back {
+  transform: rotate(180deg);
+}
+
+.square .back p {
+  max-width: 100px;
+}
+/* .square:hover {
+  --translate-y: -2px;
+  box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.5);
+  opacity: 1;
+} */
