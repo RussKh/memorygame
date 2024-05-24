@@ -1,6 +1,6 @@
 import React from "react";
 import { ISquare } from "./Board";
-// import "./AppCSS.css";
+import "./AppCSS.css";
 
 interface IProps {
   square: ISquare;
@@ -15,8 +15,20 @@ const Square = (props: IProps) => {
       onClick={() => props.openSquare(props.square.id, props.square.img)}
     >
       <div className="inner">
-        <div className="front"></div>
-        <div className="back">{props.square.img}</div>
+        <div className="front">
+          <img
+            style={{ width: "100px", height: "145px", borderRadius: "5px" }}
+            src={`${process.env.PUBLIC_URL}/images/back.jpg`}
+            alt="Example from public"
+          />
+        </div>
+        <div className="back">
+          <img
+            style={{ width: "100px", height: "145px" }}
+            src={`${process.env.PUBLIC_URL}/images/${props.square.img}`}
+            alt="Example from public"
+          />
+        </div>
       </div>
     </div>
   );

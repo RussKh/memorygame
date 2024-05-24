@@ -115,9 +115,7 @@ function App() {
     ];
     const cardsArray = playingCards.filter((el) => el.includes(suitRandom));
     console.log(cardsArray);
-    const doubleEmoji = [...cardsArray, ...cardsArray].sort(
-      () => Math.random() - 0.5
-    );
+    const doubleEmoji = [...emoji, ...emoji].sort(() => Math.random() - 0.5);
     const newSquares = squares.map((el, index) => ({
       ...el,
       img: doubleEmoji[index],

@@ -24,6 +24,8 @@
   font-weight: 800;
   cursor: pointer;
   outline: none;
+  height: 100px;
+  width: 100px;
 
   transform-style: preserve-3d;
   transition: 150ms;
