@@ -51,7 +51,7 @@ function App() {
   const [gameResult, setGameResult] = useState(0);
   const [gameResultHistory, setGameResultHistory] = useState<number[]>([]);
   const [shouldFlashBoard, setShouldFlashBoard] = useState(false);
-  const [showScore, setShowScore] = useState(true);
+  const [showScore, setShowScore] = useState(false);
 
   const toggleFlashBoard = () => setShouldFlashBoard((prev) => !prev);
 
@@ -62,7 +62,7 @@ function App() {
     const timeout = setTimeout(() => {
       toggleFlashBoard();
       setShouldDelayFlash(false);
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(timeout);
   };
@@ -141,17 +141,11 @@ function App() {
     setSquares(newSquares);
   }
 
-  useEffect(() => {
-    return handleDelayFlash();
-  }, []);
-
   function reshuffle() {
+    setShowScore(false);
     gameResult > 0 && setGameResultHistory([gameResult, ...gameResultHistory]);
-    // toggleFlashBoard(); // Trigger the board flashing
-
     setGameResult(0);
     setHistory([]);
-    setShowScore(false);
     fillBoard();
     handleDelayFlash();
   }
@@ -165,6 +159,15 @@ function App() {
       setSquares(newSquares);
     }
   }
+
+  useEffect(() => {
+    checkMove();
+    checkFinish();
+  }, [history]);
+
+  // useEffect(() => {
+  //   setShowScore(false);
+  // }, [showScore]);
 
   function checkMove() {
     if (
@@ -185,20 +188,25 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    checkMove();
-    checkFinish();
-  }, [history]);
-
   function checkFinish() {
     if (!squares.map((el) => el.isOpen).includes(false)) {
       setGameResult(history.length / 2);
+      setShowScore(true);
     }
   }
 
   return (
     <>
       <div>
+        <div className="mb-5">
+          <Button
+            variant="dark"
+            style={{ background: "brown", outline: "none" }}
+            onClick={reshuffle}
+          >
+            {squares[0].img === "" ? "START" : "Reshuffle"}
+          </Button>
+        </div>
         <div>
           <Board squares={squares} openSquare={openSquare} />
         </div>
@@ -239,18 +247,6 @@ function App() {
           </Alert>
         </div> */}
       </div>
-      <div className="d-flex justify-content-center m-5">
-        <Button variant="info" onClick={reshuffle}>
-          Reshuffle
-        </Button>
-      </div>
-      {/* <h3 className="text-center">Last win scores:</h3>
-      <div className="d-flex justify-content-center">
-        {gameResultHistory.map((res) => (
-          <li>{res}</li>
-        ))}
-      </div> */}
-      <Button onClick={reshuffle}>start restart</Button>
     </>
   );
 }
