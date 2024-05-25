@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./AppCSS.css";
 import Board from "./Board";
-import { ButtonGroup } from "react-bootstrap";
+import Modal from "react-bootstrap/Modal";
 
 function App() {
   const playingCards = [
@@ -34,8 +34,6 @@ function App() {
     "red_joker.png",
   ];
 
-  const emoji = ["🐬", "🐍", "🏄", "⛵️", "🌺", "🌴"];
-  const speedLevels = ["slow", "medium", "fast"];
   const initialSquares = new Array(12)
     .fill({
       id: 0,
@@ -48,32 +46,42 @@ function App() {
   const [squares, setSquares] = useState(initialSquares);
   const [history, setHistory] = useState<string[]>([]);
   const [isClickable, setIsClickable] = useState(true);
-  const [speed, setSpeed] = useState(speedLevels[1]);
   const [showBoardTimeout, setShowBoardTimeout] = useState(false);
   const [hideBoardTimeout, setHideBoardTimeout] = useState(false);
   const [gameResult, setGameResult] = useState(0);
   const [gameResultHistory, setGameResultHistory] = useState<number[]>([]);
   const [shouldFlashBoard, setShouldFlashBoard] = useState(false);
+  const [showScore, setShowScore] = useState(true);
 
-  const toggleFlashBoard = () => {
-    setShouldFlashBoard((prev) => !prev);
-  };
+  const toggleFlashBoard = () => setShouldFlashBoard((prev) => !prev);
 
-  useEffect(() => {
-    fillBoard();
-  }, []);
+  const [shouldDelayFlash, setShouldDelayFlash] = useState(false);
 
-  useEffect(() => {
-    if (showBoardTimeout) showBoard();
-  }, [showBoardTimeout]);
-
-  useEffect(() => {
+  const handleDelayFlash = () => {
+    setShouldDelayFlash(true);
     const timeout = setTimeout(() => {
-      setShowBoardTimeout(true);
-    }, 500);
+      toggleFlashBoard();
+      setShouldDelayFlash(false);
+    }, 1000);
 
     return () => clearTimeout(timeout);
-  }, []);
+  };
+
+  // useEffect(() => {
+  //   fillBoard();
+  // }, []);
+
+  // useEffect(() => {
+  //   if (showBoardTimeout) showBoard();
+  // }, [showBoardTimeout]);
+
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => {
+  //     setShowBoardTimeout(true);
+  //   }, 2000); // timeout before flash
+
+  //   return () => clearTimeout(timeout);
+  // }, []);
 
   useEffect(() => {
     if (hideBoardTimeout) {
@@ -85,11 +93,24 @@ function App() {
     if (showBoardTimeout) {
       const timeout = setTimeout(() => {
         setHideBoardTimeout(true);
-      }, 500); // Delay of 0.5 second (300 milliseconds)
+      }, 500);
 
       return () => clearTimeout(timeout);
     }
   }, [showBoardTimeout]);
+
+  useEffect(() => {
+    if (shouldFlashBoard) {
+      showBoard();
+
+      const timeout = setTimeout(() => {
+        hideBoard();
+        setShouldFlashBoard(false); // Reset the flag after flashing
+      }, 500); // Flash duration: 500 milliseconds (0.5 seconds)
+
+      return () => clearTimeout(timeout);
+    }
+  }, [shouldFlashBoard]);
 
   function showBoard() {
     setSquares(
@@ -103,11 +124,6 @@ function App() {
     );
     setHideBoardTimeout(false);
   }
-
-  useEffect(() => {
-    checkMove();
-    checkFinish();
-  }, [history]);
 
   function fillBoard() {
     const suitRandom = ["hearts", "diamonds", "clubs", "spades"][
@@ -125,33 +141,19 @@ function App() {
     setSquares(newSquares);
   }
 
+  useEffect(() => {
+    return handleDelayFlash();
+  }, []);
+
   function reshuffle() {
     gameResult > 0 && setGameResultHistory([gameResult, ...gameResultHistory]);
-    toggleFlashBoard(); // Trigger the board flashing
+    // toggleFlashBoard(); // Trigger the board flashing
+
     setGameResult(0);
     setHistory([]);
-    setSquares(
-      squares
-        .map((sq) => ({ ...sq, isOpen: false, pointerEnabled: true }))
-        .sort(() => Math.random() - 0.5)
-    );
-  }
-  useEffect(() => {
-    if (shouldFlashBoard) {
-      showBoard();
-
-      const timeout = setTimeout(() => {
-        hideBoard();
-        setShouldFlashBoard(false); // Reset the flag after flashing
-      }, 500); // Flash duration: 500 milliseconds (0.5 seconds)
-
-      return () => clearTimeout(timeout);
-    }
-  }, [shouldFlashBoard]);
-
-  function flashSpeed() {
-    let i = speedLevels.findIndex((level) => level === speed);
-    setSpeed(speedLevels[(i + 1) % 3]);
+    setShowScore(false);
+    fillBoard();
+    handleDelayFlash();
   }
 
   function openSquare(id: number, img: string) {
@@ -170,21 +172,23 @@ function App() {
       history[history.length - 1] !== history[history.length - 2]
     ) {
       setIsClickable(false);
-      setTimeout(
-        () => {
-          const newSquares = squares.map((el) =>
-            el.img === history[history.length - 1] ||
-            el.img === history[history.length - 2]
-              ? { ...el, isOpen: false, pointerEnabled: true }
-              : el
-          );
-          setSquares(newSquares);
-          setIsClickable(true);
-        },
-        speed === "fast" ? 300 : speed === "medium" ? 500 : 800
-      );
+      setTimeout(() => {
+        const newSquares = squares.map((el) =>
+          el.img === history[history.length - 1] ||
+          el.img === history[history.length - 2]
+            ? { ...el, isOpen: false, pointerEnabled: true }
+            : el
+        );
+        setSquares(newSquares);
+        setIsClickable(true);
+      }, 500);
     }
   }
+
+  useEffect(() => {
+    checkMove();
+    checkFinish();
+  }, [history]);
 
   function checkFinish() {
     if (!squares.map((el) => el.isOpen).includes(false)) {
@@ -195,25 +199,58 @@ function App() {
   return (
     <>
       <div>
-        <Board squares={squares} openSquare={openSquare} />
+        <div>
+          <Board squares={squares} openSquare={openSquare} />
+        </div>
+
+        <Modal
+          contentClassName="custom-modal-content"
+          size="sm"
+          centered
+          show={showScore}
+          onHide={() => setShowScore(false)}
+        >
+          <Modal.Header className="custom-modal-header">
+            <Modal.Title>Finished in {gameResult} moves</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Best score: {Math.min(...gameResultHistory)} </Modal.Body>
+          <Modal.Footer
+            className="custom-modal-footer"
+            style={{ cursor: "pointer" }}
+            onClick={reshuffle}
+          >
+            Play again?
+          </Modal.Footer>
+        </Modal>
+
+        {/* {!!gameResult && (
+          <div className="alert-overlay">
+            <Alert variant="danger" dismissible>
+              <Alert.Heading>Won in {gameResult} moves</Alert.Heading>
+              <p>Best score:</p>
+            </Alert>
+          </div>
+        )} */}
+        {/* 
+        <div className="alert-overlay">
+          <Alert variant="danger" dismissible>
+            <Alert.Heading>Won in {gameResult} moves</Alert.Heading>
+            <p>Best score:</p>
+          </Alert>
+        </div> */}
       </div>
-      <ButtonGroup aria-label="Basic example">
+      <div className="d-flex justify-content-center m-5">
         <Button variant="info" onClick={reshuffle}>
           Reshuffle
         </Button>
-        <Button variant="success" onClick={flashSpeed}>
-          Flash duration: {speed}
-        </Button>
-      </ButtonGroup>
-      <div className="m-3">
-        {!!gameResult && (
-          <Button variant="outline-success"> Won in {gameResult} moves </Button>
-        )}
-        <h3>Last win scores:</h3>
+      </div>
+      {/* <h3 className="text-center">Last win scores:</h3>
+      <div className="d-flex justify-content-center">
         {gameResultHistory.map((res) => (
           <li>{res}</li>
         ))}
-      </div>
+      </div> */}
+      <Button onClick={reshuffle}>start restart</Button>
     </>
   );
 }

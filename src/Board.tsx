@@ -1,5 +1,6 @@
 import React from "react";
 import Square from "./Square";
+import "./AppCSS.css";
 
 export interface ISquare {
   id: number;
