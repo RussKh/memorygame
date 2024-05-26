@@ -39,19 +39,18 @@ function App() {
       id: 0,
       img: "",
       isOpen: false,
-      pointerEnabled: true,
+      pointerEnabled: false,
     })
     .map((el) => ({ ...el, id: Math.random() }));
 
   const [squares, setSquares] = useState(initialSquares);
   const [history, setHistory] = useState<string[]>([]);
   const [isClickable, setIsClickable] = useState(true);
-  const [showBoardTimeout, setShowBoardTimeout] = useState(false);
-  const [hideBoardTimeout, setHideBoardTimeout] = useState(false);
   const [gameResult, setGameResult] = useState(0);
   const [gameResultHistory, setGameResultHistory] = useState<number[]>([]);
-  const [shouldFlashBoard, setShouldFlashBoard] = useState(false);
   const [showScore, setShowScore] = useState(false);
+  const [hideBoardTimeout, setHideBoardTimeout] = useState(false);
+  const [shouldFlashBoard, setShouldFlashBoard] = useState(false);
 
   const toggleFlashBoard = () => setShouldFlashBoard((prev) => !prev);
 
@@ -62,42 +61,16 @@ function App() {
     const timeout = setTimeout(() => {
       toggleFlashBoard();
       setShouldDelayFlash(false);
-    }, 500);
+    }, 0); // reshuffle timeout
 
     return () => clearTimeout(timeout);
   };
-
-  // useEffect(() => {
-  //   fillBoard();
-  // }, []);
-
-  // useEffect(() => {
-  //   if (showBoardTimeout) showBoard();
-  // }, [showBoardTimeout]);
-
-  // useEffect(() => {
-  //   const timeout = setTimeout(() => {
-  //     setShowBoardTimeout(true);
-  //   }, 2000); // timeout before flash
-
-  //   return () => clearTimeout(timeout);
-  // }, []);
 
   useEffect(() => {
     if (hideBoardTimeout) {
       hideBoard();
     }
   }, [hideBoardTimeout]);
-
-  useEffect(() => {
-    if (showBoardTimeout) {
-      const timeout = setTimeout(() => {
-        setHideBoardTimeout(true);
-      }, 500);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [showBoardTimeout]);
 
   useEffect(() => {
     if (shouldFlashBoard) {
@@ -126,6 +99,7 @@ function App() {
   }
 
   function fillBoard() {
+    setShowScore(false);
     const suitRandom = ["hearts", "diamonds", "clubs", "spades"][
       Math.floor(Math.random() * 4)
     ];
@@ -142,12 +116,17 @@ function App() {
   }
 
   function reshuffle() {
-    setShowScore(false);
-    gameResult > 0 && setGameResultHistory([gameResult, ...gameResultHistory]);
-    setGameResult(0);
+    // if (gameResult > 0) {
+    //   setGameResultHistory([gameResult, ...gameResultHistory]);
+    // }
+    // setGameResult(0);
     setHistory([]);
-    fillBoard();
-    handleDelayFlash();
+    setShowScore(false);
+    hideBoard();
+    setTimeout(() => {
+      fillBoard();
+      handleDelayFlash();
+    }, 500);
   }
 
   function openSquare(id: number, img: string) {
@@ -165,10 +144,6 @@ function App() {
     checkFinish();
   }, [history]);
 
-  // useEffect(() => {
-  //   setShowScore(false);
-  // }, [showScore]);
-
   function checkMove() {
     if (
       history.length % 2 === 0 &&
@@ -184,13 +159,15 @@ function App() {
         );
         setSquares(newSquares);
         setIsClickable(true);
-      }, 500);
+      }, 500); //second card flip timeout
     }
   }
 
   function checkFinish() {
-    if (!squares.map((el) => el.isOpen).includes(false)) {
-      setGameResult(history.length / 2);
+    if (squares.every((el) => el.isOpen)) {
+      const currentResult = history.length / 2;
+      setGameResult(currentResult);
+      setGameResultHistory((prev) => [currentResult, ...prev]);
       setShowScore(true);
     }
   }
@@ -221,7 +198,12 @@ function App() {
           <Modal.Header className="custom-modal-header">
             <Modal.Title>Finished in {gameResult} moves</Modal.Title>
           </Modal.Header>
-          <Modal.Body>Best score: {Math.min(...gameResultHistory)} </Modal.Body>
+          <Modal.Body>
+            Best score:{" "}
+            {gameResultHistory.length > 0
+              ? Math.min(...gameResultHistory)
+              : gameResult}
+          </Modal.Body>
           <Modal.Footer
             className="custom-modal-footer"
             style={{ cursor: "pointer" }}
@@ -230,22 +212,6 @@ function App() {
             Play again?
           </Modal.Footer>
         </Modal>
-
-        {/* {!!gameResult && (
-          <div className="alert-overlay">
-            <Alert variant="danger" dismissible>
-              <Alert.Heading>Won in {gameResult} moves</Alert.Heading>
-              <p>Best score:</p>
-            </Alert>
-          </div>
-        )} */}
-        {/* 
-        <div className="alert-overlay">
-          <Alert variant="danger" dismissible>
-            <Alert.Heading>Won in {gameResult} moves</Alert.Heading>
-            <p>Best score:</p>
-          </Alert>
-        </div> */}
       </div>
     </>
   );
