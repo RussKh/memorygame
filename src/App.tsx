@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./AppCSS.css";
+import "./App.css";
 import Board from "./Board";
 import Modal from "react-bootstrap/Modal";
 

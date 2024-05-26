@@ -1,6 +1,5 @@
-import React from "react";
 import { ISquare } from "./Board";
-import "./AppCSS.css";
+import "./App.css";
 
 interface IProps {
   square: ISquare;
